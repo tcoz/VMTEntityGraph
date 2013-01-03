@@ -1,0 +1,11 @@
+/* CSS 3 FEATURES */
+.roundedcorners {
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.boxshadow {
+    -moz-box-shadow: 4px 4px 2px #000;
+    -webkit-box-shadow: 4px 4px 2px #000;
+    box-shadow: 4px 4px 2px #000;
+}
