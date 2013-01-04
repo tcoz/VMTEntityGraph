@@ -25,6 +25,7 @@ vmtEntityGraphView.init = function ( ) {
 
 vmtEntityGraphView.originPoint = { };
 vmtEntityGraphView.graphYMax = 100;
+vmtEntityGraphView.yAxisLength = -1;
 vmtEntityGraphView.drawBackground = function ( ) {
 
     var layer_background = jQuery ( '#layer_background').get ( 0),
@@ -32,7 +33,7 @@ vmtEntityGraphView.drawBackground = function ( ) {
         timeArray = tcoz.parseXMLAttribute ( 'ServiceEntityHistory', 'time', vmtEntityGraphView.getData ( ) ),
         originPoint = vmtEntityGraphView.originPoint = { 'x' : 50, 'y' : layer_background.height - 10 },
         max = vmtEntityGraphView.graphYMax,
-        yAxisLength = originPoint.y - 70;
+        yAxisLength = vmtEntityGraphView.yAxisLength = originPoint.y - 70,
         i = 0;
 
     layer_background_context.strokeStyle = '#000000';
@@ -63,12 +64,20 @@ vmtEntityGraphView.drawBackground = function ( ) {
         layer_background_context.fillText ( timeLabelVal, xCoord, originPoint.y );
     }
 
-    // draw the Y labels from 0 to graphYMax
+    // draw the Y labels from 0 to graphYMax, and the grid lines across the graph
     for ( i = 0; i <= 10; i += 1 ) {
+        var yTarget = ( originPoint.y - 20 ) - ( ( yAxisLength * .1 ) * i );
+
         layer_background_context.font = 'bold 10px sans-serif';
         layer_background_context.fillStyle = "#000000";
-        var yTarget = ( originPoint.y - 20 ) - ( ( yAxisLength * .1 ) * i );
         layer_background_context.fillText ( ( i * 10 ).toString ( ), originPoint.x - 35, yTarget );
+
+        layer_background_context.strokeStyle = "#CCCCCC";
+        layer_background_context.lineWidth = 1;
+        layer_background_context.beginPath ( );
+        layer_background_context.moveTo ( originPoint.x, yTarget );
+        layer_background_context.lineTo ( 515, yTarget );
+        layer_background_context.stroke ( );
     }
 };
 
@@ -101,6 +110,7 @@ vmtEntityGraphView.drawGraph = function ( valsArray, bottomLayer, topLayer, line
     var layer_background = jQuery ( '#layer_background' ).get ( 0 ),
         originPoint = vmtEntityGraphView.originPoint,
         max = vmtEntityGraphView.graphYMax,
+        yAxisLength = vmtEntityGraphView.yAxisLength,
         nudge = 10,
         i = 0;
 
@@ -109,7 +119,6 @@ vmtEntityGraphView.drawGraph = function ( valsArray, bottomLayer, topLayer, line
     var lastYCoord = -1;
     for ( i = 0; i < valsArray.length; i += 1 ) {
 
-        var yAxisLength = originPoint.y - 70;
         var pctOfMax = valsArray [ i ] / max;
         var xCoord = originPoint.x + ( i * 40 );
         var yCoord = ( originPoint.y - 20 ) - ( yAxisLength * pctOfMax );
