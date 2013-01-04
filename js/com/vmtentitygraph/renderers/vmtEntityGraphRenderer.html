@@ -1,5 +1,47 @@
-    <div style="position: absolute; left: 175px; top: 10px; font-weight: bold;">VCPU Utilization - <span id="vmname" style="font-weight: normal;"></span></div>
-    <canvas id="layer0" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
-    <canvas id="layer1" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
-    <canvas id="layer2" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
-    <div id="rawdata"></div>
+    <script type="text/javascript">
+
+        function onCheckboxChange ( checkBox, metric ) {
+
+            var divID = "#" + metric;
+            if ( checkBox.checked ) {
+                jQuery ( divID ).show ( );
+            }
+            else {
+                jQuery ( divID ).hide ( );
+            }
+        }
+
+    </script>
+
+    <canvas id="layer_background" width="550" height="400" style="position: absolute; left: 175px; top: 10px; z-index: 0;"></canvas>
+
+    <div id="vcpu" style="position: absolute; left: 175px; top: 10px; font-weight: bold;">
+        <canvas id="layer0_vcpu" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+        <canvas id="layer1_vcpu" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+    </div>
+    <div id="vmem" style="position: absolute; left: 175px; top: 10px; font-weight: bold;">
+        <canvas id="layer0_vmem" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
+        <canvas id="layer1_vmem" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 4;"></canvas>
+    </div>
+    <div id="storage" style="position: absolute; left: 175px; top: 10px; font-weight: bold;">
+        <canvas id="layer0_storage" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 5;"></canvas>
+        <canvas id="layer1_storage" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 6;"></canvas>
+    </div>
+
+    <canvas id="layer_util" width="550" height="400" style="position: absolute; left: 175px; top: 10px; z-index: 7;"></canvas>
+
+    <div style="position: absolute; left: 185px; top: 15px; font-weight: bold; font-size: 14px; z-index: 8;">
+        VCPU, VMEM, Storage Utilization - <span id="vmname" style="font-weight: normal;"></span>
+        <span style="position: relative; left: 10px">
+            <input type="checkbox" onchange="onCheckboxChange ( this, 'vcpu' )" checked />
+            <span style="position: relative; left: 5px; color: #FF0000;">vcpu</span>
+        </span>
+        <span style="position: relative; left: 20px">
+            <input type="checkbox" onchange="onCheckboxChange ( this, 'vmem' )" checked />
+            <span style="position: relative; left: 5px; color: #0000FF;">vmem</span>
+        </span>
+        <span style="position: relative; left: 30px">
+            <input type="checkbox" onchange="onCheckboxChange ( this, 'storage' )" checked />
+            <span style="position: relative; left: 5px; color: #00FF00;">storage</span>
+        </span>
+    </div>
