@@ -16,6 +16,8 @@ vmtEntityGraphView.init = function ( ) {
 
                 jQuery ( '#vmname').text ( StartupSingleton ( ).vmname );
                 // jQuery ( '#rawdata').text ( vmtEntityGraphView.getData ( ) );
+
+                window.setInterval ( vmtEntityGraphView.drawAllGraphs, 300000 );
             }
         );
         return element;
@@ -82,6 +84,8 @@ vmtEntityGraphView.drawBackground = function ( ) {
 };
 
 vmtEntityGraphView.drawAllGraphs = function ( ) {
+
+    alert ( "drawing" );
 
     // Set up and draw VCPU
     var valsArray = tcoz.parseXMLAttribute ( 'ServiceEntityHistory', 'VCPU_utilization', vmtEntityGraphView.getData ( ) ),
