@@ -24,7 +24,16 @@ var baseView = function ( ) {
     screenElement = null,
     i = 0,
     handler = null,
-    dataObj = null;
+    dataObj = null,
+    initialized = false;
+
+    that.getInitialized = function ( ) {
+        return initialized;
+    };
+
+    that.setInitialized = function ( val ) {
+        initialized = val;
+    };
 
     that.getScreenElement = function ( ) {
         return screenElement;
@@ -67,7 +76,16 @@ var baseController = function ( ) {
 
     var that = { },
     notificationListeners = [ ],
-    view = null;
+    view = null,
+    initialized = false;
+
+    that.getInitialized = function ( ) {
+        return initialized;
+    };
+
+    that.setInitialized = function ( val ) {
+        initialized = val;
+    };
 
     that.getView = function ( ) {
         return view;

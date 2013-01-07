@@ -2,6 +2,7 @@ var vmtEntityGraphView = ( tcoz.vmtEntityGraphView = baseView ( ) );
 
 vmtEntityGraphView.init = function ( ) {
 
+    this.setInitialized ( true );
     this.setScreenElement ( function ( ) {
 
         var element = '';
@@ -16,10 +17,9 @@ vmtEntityGraphView.init = function ( ) {
 
                 jQuery ( '#vmname').text ( StartupSingleton ( ).vmname );
                 // jQuery ( '#rawdata').text ( vmtEntityGraphView.getData ( ) );
-
-                window.setInterval ( vmtEntityGraphView.drawAllGraphs, 300000 );
             }
         );
+
         return element;
 
     } ( ) );
@@ -30,8 +30,8 @@ vmtEntityGraphView.graphYMax = 100;
 vmtEntityGraphView.yAxisLength = -1;
 vmtEntityGraphView.drawBackground = function ( ) {
 
-    var layer_background = jQuery ( '#layer_background').get ( 0),
-        layer_background_context = layer_background.getContext ( '2d'),
+    var layer_background = jQuery ( '#layer_background').get ( 0 ),
+        layer_background_context = layer_background.getContext ( '2d' ),
         timeArray = tcoz.parseXMLAttribute ( 'ServiceEntityHistory', 'time', vmtEntityGraphView.getData ( ) ),
         originPoint = vmtEntityGraphView.originPoint = { 'x' : 50, 'y' : layer_background.height - 10 },
         max = vmtEntityGraphView.graphYMax,
@@ -85,11 +85,15 @@ vmtEntityGraphView.drawBackground = function ( ) {
 
 vmtEntityGraphView.drawAllGraphs = function ( ) {
 
+    var layer_background = jQuery ( '#layer_background').get ( 0 );
+
     // Set up and draw VCPU
     var valsArray = tcoz.parseXMLAttribute ( 'ServiceEntityHistory', 'VCPU_utilization', vmtEntityGraphView.getData ( ) ),
         bottom_context = jQuery ( '#layer0_vcpu').get ( 0 ).getContext ( '2d'),
         top_context = jQuery ( '#layer1_vcpu').get ( 0 ).getContext ( '2d');
 
+    bottom_context.clearRect ( 0, 0, layer_background.width, layer_background.height );
+    top_context.clearRect ( 0, 0, layer_background.width, layer_background.height );
     vmtEntityGraphView.drawGraph ( valsArray, bottom_context, top_context, '#FF0000', 6 );
 
     // Set up and draw VMEM
@@ -97,6 +101,8 @@ vmtEntityGraphView.drawAllGraphs = function ( ) {
     bottom_context = jQuery ( '#layer0_vmem').get ( 0 ).getContext ( '2d');
     top_context = jQuery ( '#layer1_vmem').get ( 0 ).getContext ( '2d');
 
+    bottom_context.clearRect ( 0, 0, layer_background.width, layer_background.height );
+    top_context.clearRect ( 0, 0, layer_background.width, layer_background.height );
     vmtEntityGraphView.drawGraph ( valsArray, bottom_context, top_context, '#0000FF', 4 );
 
     // Set up and draw Storage
@@ -104,6 +110,8 @@ vmtEntityGraphView.drawAllGraphs = function ( ) {
     bottom_context = jQuery ( '#layer0_storage').get ( 0 ).getContext ( '2d');
     top_context = jQuery ( '#layer1_storage').get ( 0 ).getContext ( '2d');
 
+    bottom_context.clearRect ( 0, 0, layer_background.width, layer_background.height );
+    top_context.clearRect ( 0, 0, layer_background.width, layer_background.height );
     vmtEntityGraphView.drawGraph ( valsArray, bottom_context, top_context, '#00FF00', 2 );
 }
 
