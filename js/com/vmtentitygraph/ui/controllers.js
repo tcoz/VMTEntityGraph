@@ -36,6 +36,7 @@ vmtEntityGraphController.notify = function ( notification ) {
             vmtEntityGraphController.getView ().init ( );
         }
         else if ( vmtEntityGraphController.getView ().getInitialized ( ) === true ) {
+            vmtEntityGraphController.getView ().drawBackground ( );
             vmtEntityGraphController.getView ().drawAllGraphs ( );
         }
     }
