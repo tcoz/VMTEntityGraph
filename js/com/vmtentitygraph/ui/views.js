@@ -85,8 +85,6 @@ vmtEntityGraphView.drawBackground = function ( ) {
 
 vmtEntityGraphView.drawAllGraphs = function ( ) {
 
-    alert ( "drawing" );
-
     // Set up and draw VCPU
     var valsArray = tcoz.parseXMLAttribute ( 'ServiceEntityHistory', 'VCPU_utilization', vmtEntityGraphView.getData ( ) ),
         bottom_context = jQuery ( '#layer0_vcpu').get ( 0 ).getContext ( '2d'),
