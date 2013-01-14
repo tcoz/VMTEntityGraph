@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+    <head>
+        <title>VMTurbo Entity Graph</title>
+
+        <!-- Main Stylesheet -->
+        <link rel="stylesheet" href="../css/main.css">
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <script src="../js/vendor/jquery-1.8.3.min.js"></script>
+
+    </head>
+
+    <body>
+
+        <script type="text/javascript">
+
+            // Framework namespace, only used by the utils and parser scripts here
+            tcoz = { };
+
+            jQuery ( document ).ready ( function ( ) {
+                jQuery.ajax ( {
+                    dataType : 'text',
+                    data : { },
+                    type : 'GET',
+                    url : 'http://administrator:administrator@localhost:8400/vmturbo/api?inv.c&ServiceEntityHistoryService&getByNameOrUuid&vm-2109&VMem/utilization|VMem/peakUtilization|VCPU/utilization|VMem/units|VCPU/units|VCPU/peakUtilization|VStorage/utilization|VStorage/peakUtilization|StorageAccess/utilization|StorageAccess/peakUtilization|StorageLatency/utilization|StorageLatency/peakUtilization|StorageAccess/used|StorageLatency/used|VMem/used|VCPU/used|VStorage/used||StorageAccess/peak|StorageLatency/peak|VMem/peak|VCPU/peak|VStorage/peak|priceIndex&1358185766429&1358192966429&Snapshots',
+                    success : function ( ajaxReturn ) { onAjaxReturn ( { 'status' : 'ok', 'ajaxReturn' : ajaxReturn } ); },
+                    error : function ( error ) { onAjaxReturn ( error.responseText ); }
+                } );
+            } );
+
+            var graphData = { };
+            function onAjaxReturn ( dataObj ) {
+
+                graphData = dataObj.ajaxReturn;
+                drawBackground ( );
+                drawAllGraphs ( );
+            };
+
+            function onCheckboxChange ( checkBox, metric ) {
+
+                var divID = "#" + metric;
+                if ( checkBox.checked ) {
+                    jQuery ( divID ).show ( );
+                }
+                else {
+                    jQuery ( divID ).hide ( );
+                }
+            }
+
+            var originPoint = { };
+            var graphYMax = 100;
+            var yAxisLength = -1;
+            function drawBackground ( ) {
+
+                var layer_background = jQuery ( '#layer_background').get ( 0 ),
+                    layer_background_context = layer_background.getContext ( '2d' ),
+                    timeArray = tcoz.parseXMLAttribute ( 'ServiceEntityHistory', 'time', graphData ),
+                    i = 0;
+
+                this.originPoint = { 'x' : 50, 'y' : layer_background.height - 10 };
+                this.yAxisLength = originPoint.y - 70;
+                this.graphYMax = 100;
+
+                jQuery ( '#vmname').text ( '2109' );
+
+                layer_background_context.clearRect ( 0, 0, layer_background.width, layer_background.height );
+
+                layer_background_context.strokeStyle = '#000000';
+                layer_background_context.strokeRect ( 0, 0, layer_background.width, layer_background.height );
+                layer_background_context.stroke ( );
+
+                // draw the axis lines
+                layer_background_context.beginPath ( );
+                layer_background_context.moveTo ( originPoint.x - 10, originPoint.y - 20 );
+                layer_background_context.lineTo ( layer_background.width - 30, originPoint.y - 20 );
+                layer_background_context.stroke ( );
+
+                layer_background_context.beginPath ( );
+                layer_background_context.moveTo ( originPoint.x - 10, originPoint.y - 20 );
+                layer_background_context.lineTo ( originPoint.x - 10, 40 );
+                layer_background_context.stroke ( );
+
+                // draw X label times
+                var date = new Date ( );
+                for ( i = 0; i < timeArray.length; i += 1 )
+                {
+                    date.setTime ( timeArray [ i ] );
+
+                    var xCoord = originPoint.x + ( i * 40 );
+                    var timeLabelVal = date.getHours ().toString ( ) + ":" + date.getMinutes ().toString ( );
+
+                    layer_background_context.fillStyle = "#000000";
+                    layer_background_context.fillText ( timeLabelVal, xCoord, originPoint.y );
+                }
+
+                // draw the Y labels from 0 to graphYMax, and the grid lines across the graph
+                for ( i = 0; i <= 10; i += 1 ) {
+                    var yTarget = ( originPoint.y - 20 ) - ( ( yAxisLength * .1 ) * i );
+
+                    layer_background_context.font = 'bold 10px sans-serif';
+                    layer_background_context.fillStyle = "#000000";
+                    layer_background_context.fillText ( ( i * 10 ).toString ( ), originPoint.x - 35, yTarget );
+
+                    layer_background_context.strokeStyle = "#CCCCCC";
+                    layer_background_context.lineWidth = 1;
+                    layer_background_context.beginPath ( );
+                    layer_background_context.moveTo ( originPoint.x, yTarget );
+                    layer_background_context.lineTo ( 515, yTarget );
+                    layer_background_context.stroke ( );
+                }
+            };
+
+            function drawAllGraphs ( ) {
+
+                // Set up and draw VCPU
+                var valsArray = tcoz.parseXMLAttribute ( 'ServiceEntityHistory', 'VCPU_utilization', graphData ),
+                    bottom_context = jQuery ( '#layer0_vcpu').get ( 0 ).getContext ( '2d'),
+                    top_context = jQuery ( '#layer1_vcpu').get ( 0 ).getContext ( '2d');
+
+                drawGraph ( valsArray, bottom_context, top_context, '#FF0000', 6 );
+
+                // Set up and draw VMEM
+                valsArray = tcoz.parseXMLAttribute ( 'ServiceEntityHistory', 'VMEM_utilization', graphData );
+                bottom_context = jQuery ( '#layer0_vmem').get ( 0 ).getContext ( '2d');
+                top_context = jQuery ( '#layer1_vmem').get ( 0 ).getContext ( '2d');
+
+                drawGraph ( valsArray, bottom_context, top_context, '#0000FF', 4 );
+
+                // Set up and draw Storage
+                valsArray = tcoz.parseXMLAttribute ( 'ServiceEntityHistory', 'Storage_utilization', graphData );
+                bottom_context = jQuery ( '#layer0_storage').get ( 0 ).getContext ( '2d');
+                top_context = jQuery ( '#layer1_storage').get ( 0 ).getContext ( '2d');
+
+                drawGraph ( valsArray, bottom_context, top_context, '#00FF00', 2 );
+            }
+
+            function drawGraph ( valsArray, bottomLayer, topLayer, lineColor, lineWeight ) {
+
+                var layer_background = jQuery ( '#layer_background' ).get ( 0 ),
+                    max = graphYMax,
+                    nudge = 10,
+                    i = 0;
+
+                bottomLayer.clearRect ( 0, 0, layer_background.width, layer_background.height );
+                topLayer.clearRect ( 0, 0, layer_background.width, layer_background.height );
+
+
+                // Get times, draw Y axis labels, get values, draw indicators
+                var lastXCoord = -1;
+                var lastYCoord = -1;
+                for ( i = 0; i < valsArray.length; i += 1 ) {
+
+                    var pctOfMax = valsArray [ i ] / max;
+                    var xCoord = originPoint.x + ( i * 40 );
+                    var yCoord = ( originPoint.y - 20 ) - ( yAxisLength * pctOfMax );
+
+                    // draw the graph lines
+                    bottomLayer.strokeStyle = lineColor;
+                    bottomLayer.lineWidth = lineWeight;
+                    if ( lastXCoord !== -1 ) {
+                        bottomLayer.beginPath ( );
+                        bottomLayer.moveTo ( lastXCoord + nudge, lastYCoord );
+                        bottomLayer.lineTo ( xCoord + nudge, yCoord );
+                        bottomLayer.stroke ( );
+                    }
+
+                    // draw circle indicators
+                    topLayer.fillStyle = "#00FF00";
+                    topLayer.beginPath ( );
+                    topLayer.arc ( xCoord + 10, yCoord, 5, 0, 2 * Math.PI, false );
+                    topLayer.fill ( );
+                    topLayer.lineWidth = 1;
+                    topLayer.strokeStyle = '#000000';
+                    topLayer.stroke ( );
+
+                    // preserve the last coords so we know the last location to a draw a line from (to this location).
+                    lastXCoord = xCoord;
+                    lastYCoord = yCoord;
+                }
+            };
+
+        </script>
+
+        <canvas id="layer_background" width="550" height="400" style="position: absolute; left: 175px; top: 10px; z-index: 0;"></canvas>
+
+        <div id="vcpu" style="position: absolute; left: 175px; top: 10px; font-weight: bold;">
+            <canvas id="layer0_vcpu" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+            <canvas id="layer1_vcpu" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+        </div>
+        <div id="vmem" style="position: absolute; left: 175px; top: 10px; font-weight: bold;">
+            <canvas id="layer0_vmem" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
+            <canvas id="layer1_vmem" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 4;"></canvas>
+        </div>
+        <div id="storage" style="position: absolute; left: 175px; top: 10px; font-weight: bold;">
+            <canvas id="layer0_storage" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 5;"></canvas>
+            <canvas id="layer1_storage" width="550" height="400" style="position: absolute; left: 0; top: 0; z-index: 6;"></canvas>
+        </div>
+
+        <canvas id="layer_util" width="550" height="400" style="position: absolute; left: 175px; top: 10px; z-index: 7;"></canvas>
+
+        <div style="position: absolute; left: 185px; top: 15px; font-weight: bold; font-size: 14px; z-index: 8;">
+            VCPU, VMEM, Storage Utilization - <span id="vmname" style="font-weight: normal;"></span>
+        <span style="position: relative; left: 10px">
+            <input type="checkbox" onchange="onCheckboxChange ( this, 'vcpu' )" checked />
+            <span style="position: relative; left: 5px; color: #FF0000;">vcpu</span>
+        </span>
+        <span style="position: relative; left: 20px">
+            <input type="checkbox" onchange="onCheckboxChange ( this, 'vmem' )" checked />
+            <span style="position: relative; left: 5px; color: #0000FF;">vmem</span>
+        </span>
+        <span style="position: relative; left: 30px">
+            <input type="checkbox" onchange="onCheckboxChange ( this, 'storage' )" checked />
+            <span style="position: relative; left: 5px; color: #00FF00;">storage</span>
+        </span>
+        </div>
+
+        <!-- JSBase Framework (in simplified version, these two just contain some useful utils you'd otherwise have to write) -->
+        <script type="text/javascript" src="../js/tcoz/jsbase/utils_jsbase.js"></script>
+        <script type="text/javascript" src="../js/com/vmtentitygraph/ui/parsers.js"></script>
+
+    </body>
+
+</html>

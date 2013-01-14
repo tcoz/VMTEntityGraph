@@ -7,6 +7,8 @@ getEntityDataCommand.execute = function ( dataObj ) {
 
     var destinationURL = StartupSingleton ().vmEntityTwoHourSnapshots;
 
+    log.debug ( destinationURL );
+
     getEntityDataCommand.dispatchCommandNotification ( 'AJAX_CALL',
         { 'destination' : destinationURL, 'callback' : getEntityDataCommand.onAjaxReturn }
     );
